@@ -18,6 +18,8 @@
 // Include the SDK using the Composer autoloader
 require 'vendor/autoload.php';
 use Aws\S3\S3Client;
+use Aws\S3\Model\ClearBucket;
+
 /*
  If you instantiate a new client for Amazon Simple Storage Service (S3) with
  no parameters or configuration, the AWS SDK for PHP will look for access keys
@@ -115,19 +117,9 @@ echo "\n----END----\n\n";
 
 /*
  Now, we want to delete the bucket. Buckets cannot be deleted unless they're empty. 
- With the AWS SDK for PHP, you have a few options when deleting multiple objects:
-
-  - Use deleteMatchingObjects method:
-      http://docs.aws.amazon.com/aws-sdk-php/v3/api/class-Aws.S3.S3Client.html#_deleteMatchingObjects 
-  - Use the BatchDelete helper:
-      http://docs.aws.amazon.com/aws-sdk-php/v3/api/class-Aws.S3.BatchDelete.html
-  - Or individually delete the objects.
-
- We'll use the BatchDelete helper to delete the two objects we created.
 */
-echo "Deleting all objects in bucket {$bucket}\n";
-$batch = Aws\S3\BatchDelete::fromListObjects($s3, ['Bucket' => $bucket]);
-$batch->delete();
+$clear = new ClearBucket($s3, $bucket);
+$clear->clear();
 
 /*
  Now that the bucket is empty, it can be deleted.
@@ -135,6 +127,12 @@ $batch->delete();
 
 echo "Deleting bucket {$bucket}\n";
 $s3->deleteBucket(['Bucket' => $bucket]);
+
+/*
+ Wait until the bucket is not accessible
+*/
+$s3->waitUntil('BucketNotExists',['Bucket' => $bucket]);
+
 
 /*
  Although this sample didn't check for errors when calling service operations,
