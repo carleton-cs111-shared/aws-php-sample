@@ -17,7 +17,7 @@
 
 // Include the SDK using the Composer autoloader
 require 'vendor/autoload.php';
-
+use Aws\S3\S3Client;
 /*
  If you instantiate a new client for Amazon Simple Storage Service (S3) with
  no parameters or configuration, the AWS SDK for PHP will look for access keys
@@ -28,11 +28,13 @@ require 'vendor/autoload.php';
  For more information about this interface to Amazon S3, see:
  http://docs.aws.amazon.com/aws-sdk-php/v3/guide/getting-started/basic-usage.html#creating-a-client
 */
-$s3 = new Aws\S3\S3Client([
-    'version' => '2006-03-01',
-    'region'  => 'us-west-2'
-]);
-
+// $s3 = new Aws\S3\S3Client([
+//     'version' => 'latest',
+//     'region'  => 'us-east-1'
+// ]);
+$s3 = S3Client::factory(array(
+                           'profile' => 'default',
+                           ));
 /*
  Everything uploaded to Amazon S3 must belong to a bucket. These buckets are
  in the global namespace, and must have a unique name.
