@@ -35,26 +35,33 @@ $keyPairName = 'vmkeypair';
 // Permissions important for ssh
 //chmod($saveKeyLocation, 0600);
 
+// Parse without sections
+$ini_array = parse_ini_file("privatedata.ini");
+$subnetId = $ini_array['subnetid'];
+$vpcId = $ini_array['vpcid'];
+$securityId = $ini_array['securityid'];
+
 // Create security group, and configure. This will go up on AWS.
 $securityGroupName = 'placement-vm-security-group';
 //$result = $ec2->createSecurityGroup(['GroupName' => $securityGroupName,
-//	                             'Description' => 'Basic ssh security']);
+//	                             'Description' => 'Basic ssh security',
+//				     'VpcId' => $vpcId]);
 //$ec2->authorizeSecurityGroupIngress([
-//	'GroupName' => $securityGroupName,
+//	'GroupId' => $securityId,
 //	'IpPermissions' => [['IpProtocol' => 'tcp',
 //			     'FromPort' => 22,
 //			     'ToPort' => 22,
 //			     'IpRanges' => [['CidrIp' => '0.0.0.0/0']]]]]);
 
-// Start up a VM.
+
+// Observe all the instances already out there
+//$result = $ec2->describeInstances();
+//$instanceIds = $result->getPath('Reservations/*/Instances/*/InstanceId');
+//print_r($instanceIds);
+
 // t2 instance types, which is what I'm running, must run on a VPC: a virtual private cloud.
 // In order to do that, you need to specify a subnet. The subnet read in the file below is one
 // of my own personal subnets that I've created.
-
-// Parse without sections
-$ini_array = parse_ini_file("privatedata.ini");
-$subnetId = $ini_array['subnetid'];
-echo "$subnetId\n";
 
 $result = $ec2->runInstances([
 	'ImageId' => 'ami-c58c1dd3',
@@ -63,14 +70,16 @@ $result = $ec2->runInstances([
 	'InstanceType' => 't2.micro',
 	'KeyName' => $keyPairName,
 	'SubnetId' => $subnetId,
-	//'SecurityGroups' => [$securityGroupName]
+	'SecurityGroupIds' => [$securityId]
 	]);
 
 
-$instanceIds = $result->getPath('Instances/*/InstanceID');
+$instanceIds = $result->getPath('Instances/*/InstanceId');
 
 $ec2->waitUntilInstanceRunning(['InstanceIds' => $instanceIds]);
 
 $result = $ec2->describeInstances(['InstanceIds' => $instanceIds]);
 
-echo current($result->getPath('Reservations/*/Instances/*/PublicDnsName'));
+print_r($result);
+
+echo current($result->getPath('Reservations/*/Instances/*/PublicIpAddress'));
