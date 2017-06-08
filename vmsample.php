@@ -63,6 +63,8 @@ $securityGroupName = 'placement-vm-security-group';
 // In order to do that, you need to specify a subnet. The subnet read in the file below is one
 // of my own personal subnets that I've created.
 
+// chunk_split/base64_encode is the canonincal way to base64encode a string
+// https://stackoverflow.com/questions/29477997/what-is-the-use-of-the-combination-of-chunk-split-and-base64-encode
 $startupScript = chunk_split(base64_encode(file_get_contents("startupscript.txt")));
 
 $result = $ec2->runInstances([
