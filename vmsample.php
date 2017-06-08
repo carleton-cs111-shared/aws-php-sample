@@ -82,4 +82,4 @@ $result = $ec2->describeInstances(['InstanceIds' => $instanceIds]);
 
 print_r($result);
 
-echo current($result->getPath('Reservations/*/Instances/*/PublicIpAddress'));
+print_r($result->getPath('Reservations/*/Instances/*/PublicIpAddress'));
