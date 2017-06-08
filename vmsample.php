@@ -63,6 +63,8 @@ $securityGroupName = 'placement-vm-security-group';
 // In order to do that, you need to specify a subnet. The subnet read in the file below is one
 // of my own personal subnets that I've created.
 
+$startupScript = chunk_split(base64_encode(file_get_contents("startupscript.txt")));
+
 $result = $ec2->runInstances([
 	'ImageId' => 'ami-c58c1dd3',
 	'MinCount' => 1,
@@ -70,7 +72,8 @@ $result = $ec2->runInstances([
 	'InstanceType' => 't2.micro',
 	'KeyName' => $keyPairName,
 	'SubnetId' => $subnetId,
-	'SecurityGroupIds' => [$securityId]
+	'SecurityGroupIds' => [$securityId],
+	'UserData' => $startupScript
 	]);
 
 
@@ -80,6 +83,5 @@ $ec2->waitUntilInstanceRunning(['InstanceIds' => $instanceIds]);
 
 $result = $ec2->describeInstances(['InstanceIds' => $instanceIds]);
 
-print_r($result);
 
 print_r($result->getPath('Reservations/*/Instances/*/PublicIpAddress'));
