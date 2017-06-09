@@ -23,9 +23,9 @@ use Aws\Ec2\Ec2Client;
 
 // Instantiate Ec2Client to do all of the work
 $ec2 = Ec2Client::factory(array(
-                           'profile' => 'default',
-			   'region' => 'us-east-1'
-                           ));
+    'profile' => 'default',
+    'region' => 'us-east-1'
+));
 
 // Create a key pair. This creates a local copy, but it also goes up on AWS.
 $keyPairName = 'vmkeypair';
@@ -76,7 +76,7 @@ $result = $ec2->runInstances([
 	'SubnetId' => $subnetId,
 	'SecurityGroupIds' => [$securityId],
 	'UserData' => $startupScript
-	]);
+]);
 
 
 $instanceIds = $result->getPath('Instances/*/InstanceId');
