@@ -19,6 +19,9 @@
 // https://aws.amazon.com/blogs/developer/provision-an-amazon-ec2-instance-with-php/
 
 require 'vendor/autoload.php';
+require 'Net/SSH2.php';
+require 'Crypt/RSA.php';
+
 use Aws\Ec2\Ec2Client;
 
 // Instantiate Ec2Client to do all of the work
@@ -85,6 +88,8 @@ $instanceIds = $result->getPath('Instances/*/InstanceId');
 $ec2->waitUntilInstanceRunning(['InstanceIds' => $instanceIds]);
 
 $result = $ec2->describeInstances(['InstanceIds' => $instanceIds]);
+
+
 
 
 print_r($result->getPath('Reservations/*/Instances/*/PublicIpAddress'));
