@@ -75,7 +75,8 @@ $result = $ec2->runInstances([
 	'KeyName' => $keyPairName,
 	'SubnetId' => $subnetId,
 	'SecurityGroupIds' => [$securityId],
-	'UserData' => $startupScript
+	'UserData' => $startupScript,
+    'InstanceInitiatedShutdownBehavior' => 'terminate'
 ]);
 
 
