@@ -21,9 +21,13 @@ $stream = ssh2_exec($connection, "python3 {$pyfile}");
 
 $done = false;
 
+$max_time = 1; // in seconds
+$start_time = time();
+echo $start_time;
+
 while (!$done) {
     $line = fgets($stream);
-    if (preg_match('/\[end\]/',$line)) {
+    if ((time() - $start_time > $max_time) or preg_match('/\[end\]/',$line)) {
         $done = true;
     } else {
         echo $line;
