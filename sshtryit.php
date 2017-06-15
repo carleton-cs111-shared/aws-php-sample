@@ -13,12 +13,21 @@ if (ssh2_auth_pubkey_file($connection, 'ec2-user', '~/.ssh/vmkeypair.pub',
 
 $pyfile = 'count.py';
 ssh2_scp_send($connection, "{$path}/{$pyfile}", "/home/ec2-user/{$pyfile}");
+
+# Lots of great help here on handling streamed output, which I've used below:
+# https://secure.php.net/manual/en/function.ssh2-exec.php
+
 $stream = ssh2_exec($connection, "python3 {$pyfile}");
 
-stream_set_blocking($stream, true);
-for ($i = 1; $i <= 10; $i++) {
+$done = false;
+
+while (!$done) {
     $line = fgets($stream);
-    echo $line;
+    if (preg_match('/\[end\]/',$line)) {
+        $done = true;
+    } else {
+        echo $line;
+    }
 }
 
 
