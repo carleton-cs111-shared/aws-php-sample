@@ -18,29 +18,24 @@ ssh2_scp_send($connection, "{$path}/{$pyfile}", "/home/ec2-user/{$pyfile}");
 # https://secure.php.net/manual/en/function.ssh2-exec.php
 
 $stream = ssh2_exec($connection, "python3 {$pyfile}");
+$errorStream = ssh2_fetch_stream($stream, SSH2_STREAM_STDERR);
 
 $done = false;
 
 $max_time = 1; // in seconds
 $start_time = time();
-echo $start_time;
+echo $start_time . "\n";
 
 while (!$done) {
     $line = fgets($stream);
+    $errorLine = fgets($errorStream);
     if ((time() - $start_time > $max_time) or preg_match('/\[end\]/',$line)) {
         $done = true;
     } else {
         echo $line;
+        echo $errorLine;
     }
 }
-
-
-
-
-
-
-
-
 
 
 
