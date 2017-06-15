@@ -19,8 +19,8 @@
 // https://aws.amazon.com/blogs/developer/provision-an-amazon-ec2-instance-with-php/
 
 require 'vendor/autoload.php';
-require 'Net/SSH2.php';
-require 'Crypt/RSA.php';
+//require 'Net/SSH2.php';
+//require 'Crypt/RSA.php';
 
 use Aws\Ec2\Ec2Client;
 

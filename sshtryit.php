@@ -1,30 +1,37 @@
 
 <?php
-$connection = ssh2_connect('shell.example.com', 22);
+$path = getenv('HOME') . '/aws-php/';
+# IP address in local environmental variable AWSIP
+$connection = ssh2_connect(getenv('AWSIP'), 22);
 
-if (ssh2_auth_agent($connection, 'username')) {
+if (ssh2_auth_pubkey_file($connection, 'ec2-user', '~/.ssh/vmkeypair.pub',
+                          '~/.ssh/vmkeypair.pem')) {
     echo "Authentication Successful!\n";
 } else {
     die('Authentication Failed...');
 }
-?>
 
+$pyfile = 'count.py';
+ssh2_scp_send($connection, "{$path}/{$pyfile}", "/home/ec2-user/{$pyfile}");
+$stream = ssh2_exec($connection, "python3 {$pyfile}");
 
-
-<!--<?php
-require 'Net/SSH2.php';
-require 'Crypt/RSA.php';
-
-// Upload public key for user "student"
-$key = new Crypt_RSA();
-
-$key->loadKey(file_get_contents('/pathtokey.pem'));
-
-
-$ssh = new Net_SSH2('ec2-user@52.91.44.49');
-if (!$ssh->login('user', $key)) {
-    exit('Login Failed');
+stream_set_blocking($stream, true);
+for ($i = 1; $i <= 10; $i++) {
+    $line = fgets($stream);
+    echo $line;
 }
 
+
+
+
+
+
+
+
+
+
+
+
 ?>
--->
+
+
