@@ -1,12 +1,12 @@
 #!/bin/bash
 yum install -y python35
 yum install -y java-1.8.0-openjdk-devel
-echo "sudo halt" | at now + 5 minutes
+#echo "sudo halt" | at now + 5 minutes
 
 # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/managing-users.html
 adduser student
-su - student
-mkdir .ssh
-chmod 700 .ssh
-touch .ssh/authorized_keys
-chmod 600 .ssh/authorized_keys
+su - student -c "mkdir .ssh"
+su - student -c "chmod 700 .ssh"
+su - student -c "touch .ssh/authorized_keys"
+cp .ssh/authorized_keys /home/student/.ssh
+su - student -c "chmod 600 .ssh/authorized_keys"
