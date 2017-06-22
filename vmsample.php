@@ -114,8 +114,8 @@ while (!$startup_done) {
       continue;
    }
 
-   if (ssh2_auth_pubkey_file($connection, 'ec2-user', '~/.ssh/vmkeypair.pub',
-                             '~/.ssh/vmkeypair.pem')) {
+   if (ssh2_auth_pubkey_file($connection, 'ec2-user', '/home/dmusicant/.ssh/vmkeypair.pub',
+                             '/home/dmusicant/.ssh/vmkeypair.pem')) {
       echo "Authentication successful.\n";
    } else {
       echo "Authentication Failed, will try again.\n";
