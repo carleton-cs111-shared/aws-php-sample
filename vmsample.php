@@ -87,9 +87,47 @@ $instanceIds = $result->getPath('Instances/*/InstanceId');
 
 $ec2->waitUntilInstanceRunning(['InstanceIds' => $instanceIds]);
 
+echo "Instance running... now waiting for startup script to finish.";
+
+// Frustratingly, AWS doesn't seem to provide an easy way to do this.
+// https://stackoverflow.com/questions/11245356/how-to-check-user-data-status-while-launching-the-instance-in-aws
+// I'm going to work around this by trying to ssh in via the student account, and verifying that the startup
+// script is done by seeing if a certain file exists.
+
+
+
 $result = $ec2->describeInstances(['InstanceIds' => $instanceIds]);
+$ip_address = $result->getPath('Reservations/*/Instances/*/PublicIpAddress')[0];
 
+echo "$ip_address\n";
 
+$startup_done = false;
 
+while (!$startup_done) {
+   echo "Sleeping...\n";
+   sleep(60);
+   echo "Trying to connect...\n";
 
-print_r($result->getPath('Reservations/*/Instances/*/PublicIpAddress'));
+   $connection = ssh2_connect($ip_address, 22);
+   if (!$connection) {
+      echo "Unable to form ssh2 connection, will try again.\n";
+      continue;
+   }
+
+   if (ssh2_auth_pubkey_file($connection, 'ec2-user', '/home/dmusicant/.ssh/vmkeypair.pub',
+                             '/home/dmusicant/.ssh/vmkeypair.pem')) {
+      echo "Authentication successful.\n";
+   } else {
+      echo "Authentication Failed, will try again.\n";
+      echo "Done.\n";
+      $startup_done = true;
+      break;
+   }
+
+   if (ssh2_scp_recv($connection, "/home/ec2-user/startupdone.txt", "/tmp/startupdone.txt")) {
+      $startup_done = true;
+      echo "Startup complete.";
+   } else {
+      echo "Startup not complete, will try again.";
+   }
+}
